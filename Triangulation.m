@@ -1,7 +1,7 @@
 function [X] = Triangulation(P1, P2, x1, x2)
-%Input: P1 and P2 are two camera projection matrices (R3×4). x1 and x2 are
-%n × 2 matrices that specify the correspondence.
-%Output: X is n × 3 where each row specifies the 3D reconstructed point.
+%Input: P1 and P2 are two camera projection matrices (R3Ã—4). x1 and x2 are
+%n Ã— 2 matrices that specify the correspondence.
+%Output: X is n Ã— 3 where each row specifies the 3D reconstructed point.
 %Description: Use the triangulation method by linear solve.
 
 n = length(x1);
@@ -24,7 +24,7 @@ for i = 1:n
     
     % solve this in the form of Ax = 0
     [~,~,V] = svd(A);
-    X(i,:) = V(1:3,end);
+    V_nor = V(:,end)/V(end,end);
+    X(i,:) = V_nor(1:3,end);
 end
-
 
