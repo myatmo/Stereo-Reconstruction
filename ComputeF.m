@@ -1,11 +1,11 @@
 function [F] = ComputeF(x1, x2)
-%Input: x1 and x2 are n × 2 matrices that specify the correspondence.
-%Output: F ? R3×3 is the fundamental matrix.
+%Input: x1 and x2 are n Ã— 2 matrices that specify the correspondence.
+%Output: F ? R3Ã—3 is the fundamental matrix.
 %Description: F is robustly computed by the 8-point algorithm within RANSAC. Note that
 %the rank of the fundamental matrix needs to be 2 (SVD clean-up should be applied.).
 %You can verify the validity of fundamental matrix by visualizing epipolar line as shown in Figure 3.
 
-ransac_thr = 3;
+ransac_thr = 2;
 ransac_iter = 100;
 
 num_matches = size(x1,1);
@@ -42,7 +42,11 @@ for iter = 1:ransac_iter
     % thresholding and counting inliers
     idx = [];
     for i=1:num_matches
-        err = norm([A * reshape(F_matrix', [], 1)]); % calculate the error for each point ||x2-Ax1||
+        %err = norm([A * reshape(F_matrix', [], 1)]); % calculate the error for each point
+        a = [x1(i,:) 1];
+        b = [x2(i,:) 1];
+        %err = F_matrix * a' / sqrt(a^2 + b^2);
+        err = sum((b .* (F_matrix * a')'),2);
         if err < ransac_thr
             idx = [idx; i];
         end
@@ -51,12 +55,11 @@ for iter = 1:ransac_iter
     
 end
 
-% calculate max size of inliers from inliers set and get the indices
+% get max size of inliers from inliers set and get the indices
 [max_size, max_idx] = max(cellfun('size',inliers_index,1));
 inlier_x1 = x1(inliers_index{max_idx},:);
 inlier_x2 = x2(inliers_index{max_idx},:);
 F = F_set{max_idx};
 inliers = inliers_index{max_idx};
-
 
 
